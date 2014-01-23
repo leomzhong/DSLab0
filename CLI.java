@@ -4,7 +4,7 @@ import java.util.Scanner;
  * Command Line Tool for testing the MessagePasser class
  * @author Ming Zhong
  * @author Pratik Shah
- *
+ * 
  */
 public class CLI {
 
@@ -46,12 +46,16 @@ public class CLI {
 				System.exit(1);
 			} else if (parsedCommand[0].equals(SEND_CMD)) {
 				/* Send command */
-				if (parsedCommand.length != SEND_CMD_ARG_NUM) {
+				if (parsedCommand.length < SEND_CMD_ARG_NUM) {
 					System.out.println(SEND_USAGE);
 					continue;
 				} else {
+					StringBuffer payload = new StringBuffer();
+					for (int i = 3; i < parsedCommand.length; i++) {
+						payload.append(parsedCommand[i] + " ");
+					}
 					Message newMessage = new Message(parsedCommand[1],
-							parsedCommand[2], parsedCommand[3]);
+							parsedCommand[2], payload.toString());
 					passer.send(newMessage);
 				}
 			} else if (parsedCommand[0].equals(RECEIVE_CMD)) {
