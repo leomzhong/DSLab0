@@ -36,7 +36,7 @@ public class MessagePasser {
 		this.listenSocket = NetworkUtil.createServerSocket(port,
 				"MessagePasser");
 		this.seqNum = 0;
-		
+
 		// TODO: Do we need to remember this thread?
 		ListenThread listen = new ListenThread();
 		Thread newListenThread = new Thread(listen);
@@ -44,6 +44,7 @@ public class MessagePasser {
 	}
 
 	protected class ListenThread implements Runnable {
+		private int maxError = 3;
 		public void run() {
 			if (listenSocket == null) {
 				return;
@@ -53,7 +54,10 @@ public class MessagePasser {
 				try {
 					newSocket = listenSocket.accept();
 				} catch (Exception ex) {
-					Log.error("ListenThread", "Cannot accept request", ex);
+					Log.error("ListenThread", "Cannot accept request, the thread exist", ex);
+					maxError--;
+					if (maxError < 0)
+						break;
 					continue;
 				}
 
@@ -89,30 +93,34 @@ public class MessagePasser {
 				 * receiveDelayBuffer.
 				 */
 
-				// TODO: Update RECEIVE RULE from config file
+				receiveBufferLock.lock();
+				config.updateReceiveRules(configFileName);
 				Rule rule = config.matchReceiveRule(newMessage);
 				if (rule == null) {
-					receiveBufferLock.lock();
 					receiveBuffer.add(newMessage);
 					while (receiveDelayBuffer.size() != 0) {
 						receiveBuffer.add(receiveDelayBuffer.poll());
 					}
-					receiveBufferLock.unlock();
 				} else {
-					if (rule.getAction() == Rule.DROP_ACTION) {
-						continue;
-					} else if (rule.getAction() == Rule.DELAY_ACTION) {
-						receiveBufferLock.lock();
+					if (rule.getAction() == Rule.DELAY_ACTION) {
 						receiveDelayBuffer.add(newMessage);
-						receiveBufferLock.unlock();
 					} else if (rule.getAction() == Rule.DUPLICATE_ACTION) {
-						// TODO: How to deal with this?
+						receiveBuffer.add(newMessage);
+						receiveBuffer.add(newMessage.clone());
+						while (receiveDelayBuffer.size() != 0) {
+							receiveBuffer.add(receiveDelayBuffer.poll());
+						}
+					} else if (rule.getAction() != Rule.DROP_ACTION) {
+						Log.normal(
+								"The rule's action is unknown, receive it normally",
+								"MessagePasser");
 					}
 				}
+				receiveBufferLock.unlock();
 			}
 		}
 	}
-	
+
 	public Message receive() {
 		receiveBufferLock.lock();
 		Message result = receiveBuffer.poll();
@@ -131,7 +139,7 @@ public class MessagePasser {
 			this.socketMap.put(dest, newSocket);
 		}
 
-		// TODO: Update the Send Rules from the config file
+		this.config.updateSendRules(this.configFileName);
 		message.set_source(localName);
 		Rule rule = this.config.matchSendRule(message);
 		if (rule == null) {
@@ -148,8 +156,19 @@ public class MessagePasser {
 				message.set_seqNum(this.seqNum++);
 				sendDelayBuffer.add(message);
 			} else if (rule.getAction() == Rule.DUPLICATE_ACTION) {
-				// TODO: How?
-				// TODO: Remember to set the duplicate field and seqNum accordingly
+				message.set_seqNum(this.seqNum++);
+				Message secondMessage = message.clone();
+				secondMessage.set_duplicate(true);
+				NetworkUtil.sendMessage(this.socketMap.get(dest), message, "send");
+				NetworkUtil.sendMessage(this.socketMap.get(dest), secondMessage, "send");
+				while (sendDelayBuffer.size() != 0) {
+					NetworkUtil.sendMessage(this.socketMap.get(dest),
+							sendDelayBuffer.poll(), "send");
+				}
+			} else {
+				Log.normal(
+						"The rule's action is unknown, send the message normally",
+						"MessagePasser");
 			}
 		}
 	}

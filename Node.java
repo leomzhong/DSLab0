@@ -3,12 +3,7 @@ public class Node {
 	private String name;
 	private String ip;
 	private int port;
-	
-	public Node(String name, String ip, int port) {
-		this.name = name;
-		this.ip = ip;
-		this.port = port;
-	}
+
 	public String getName() {
 		return name;
 	}
@@ -26,5 +21,11 @@ public class Node {
 	}
 	public void setPort(int port) {
 		this.port = port;
+	}
+	
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		result.append("node: [name:" + this.name + "; ip:" + this.ip + "; port:" + this.port + "]");
+		return result.toString();
 	}
 }

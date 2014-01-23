@@ -36,7 +36,7 @@ public class CLI {
 			}
 
 			if (parsedCommand[0].equals(QUIT_CMD)) {
-				break;
+				System.exit(1);
 			} else if (parsedCommand[0].equals(SEND_CMD)) {
 				if (parsedCommand.length != SEND_CMD_ARG_NUM) {
 					System.out.println(SEND_USAGE);
@@ -52,8 +52,12 @@ public class CLI {
 					continue;
 				} else {
 					Message receivedMessage = passer.receive();
-					System.out.println("The message received is:");
-					System.out.println(receivedMessage.toString());
+					if (receivedMessage == null) {
+						System.out.println("There is no message");
+					} else {
+						System.out.println("The message received is:");
+						System.out.println(receivedMessage.toString());
+					}
 				}
 			}
 		}

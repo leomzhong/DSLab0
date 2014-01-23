@@ -1,0 +1,36 @@
+configuration :
+    - name : alice
+      ip   : localhost 
+      port : 12344
+    
+    - name : bob
+      ip   : localhost 
+      port : 14255
+
+    - name : charlie
+      ip   : 128.2.130.19
+      port : 12998
+
+    - name : daphnie
+      ip   : 192.168.1.87
+      port : 1987
+
+sendRules :
+    - action : drop # Ack message number 4 from bob to alice will not be sent
+      src    : bob
+      dest   : alice
+      kind   : Ack
+    
+    - action : delay # Every Lookup message in the system will be delayed
+      kind   : Lookup
+      
+receiveRules :
+    - action : drop # Ack message number 4 from bob to alice will not be sent
+      src    : bob
+      dest   : alice
+      kind   : Ack
+      seqNum : 4
+      duplicate: true
+    
+    - action : delay # Every Lookup message in the system will be delayed
+      kind   : Lookup
