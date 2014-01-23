@@ -5,7 +5,24 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Utility package for network communication
+ * 
+ * This class is ported from my previous work in 15-640 Distributed System
+ * courses project. Yinsu Chu(yinsuc) is my team mate for that projects and we
+ * both contributed to this class.
+ */
 public class NetworkUtil {
+
+	/**
+	 * Create a server socket
+	 * 
+	 * @param port
+	 *            port to listen on
+	 * @param caller
+	 *            Caller of this function
+	 * @return null of fail
+	 */
 	public static ServerSocket createServerSocket(int port, String caller) {
 		ServerSocket socket = null;
 		try {
@@ -26,6 +43,17 @@ public class NetworkUtil {
 		return socket;
 	}
 
+	/**
+	 * Create a socket with another host
+	 * 
+	 * @param host
+	 *            host name of the remote host
+	 * @param port
+	 *            port to set up the connection with
+	 * @param caller
+	 *            Call of the function
+	 * @return null on fail
+	 */
 	public static Socket createSocket(String host, int port, String caller) {
 		Socket socket = null;
 		try {
@@ -46,6 +74,15 @@ public class NetworkUtil {
 		return socket;
 	}
 
+	/**
+	 * Receive a message from the socket
+	 * 
+	 * @param socket
+	 *            Socket to retrieve message
+	 * @param caller
+	 *            Caller of the function
+	 * @return null on fail
+	 */
 	public static Message receiveMessage(Socket socket, String caller) {
 		InputStream input = null;
 		ObjectInputStream objectInput = null;
@@ -86,8 +123,20 @@ public class NetworkUtil {
 		}
 		return message;
 	}
-	
-	public static boolean sendMessage(Socket socket, Message message, String caller) {
+
+	/**
+	 * Send a message through a socket
+	 * 
+	 * @param socket
+	 *            The socket to use to send the message
+	 * @param message
+	 *            The message to send
+	 * @param caller
+	 *            Caller of the function
+	 * @return true on success, false on failure
+	 */
+	public static boolean sendMessage(Socket socket, Message message,
+			String caller) {
 		OutputStream output = null;
 		ObjectOutputStream objectOutput = null;
 		try {

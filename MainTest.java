@@ -4,6 +4,12 @@ import java.io.FileInputStream;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+/**
+ * Test for MessagePasser class
+ * 
+ * @author Ming Zhong
+ * 
+ */
 public class MainTest {
 	public static void main(String[] args) {
 		Yaml test = new Yaml(new Constructor(Configuration.class));
@@ -15,7 +21,7 @@ public class MainTest {
 			System.out.println(ex.getMessage());
 			return;
 		}
-		Configuration config = (Configuration)test.load(stream);
+		Configuration config = (Configuration) test.load(stream);
 		System.out.println(config.toString());
 	}
 }

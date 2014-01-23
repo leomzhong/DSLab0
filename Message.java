@@ -1,5 +1,11 @@
 import java.io.Serializable;
 
+/**
+ * Message class exchanged between different node
+ * @author Ming Zhong
+ * @author Pratik Shah
+ *
+ */
 public class Message implements Serializable {
 	public static final long serialVersionUID = 1l;
 
@@ -68,6 +74,9 @@ public class Message implements Serializable {
 		this.payload = payload;
 	}
 
+	/**
+	 * Return a deep copy of the message
+	 */
 	public Message clone() {
 		Message result = new Message(this.get_dest(), this.get_kind(),
 				this.get_payload());
