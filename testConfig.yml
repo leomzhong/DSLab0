@@ -1,28 +1,33 @@
 configuration :
     - name : alice
-      ip   : localhost 
+      ip   : 128.237.222.79 
       port : 12344
     
     - name : bob
-      ip   : localhost 
+      ip   : 128.237.222.79 
       port : 14255
 
     - name : charlie
-      ip   : 128.2.130.19
+      ip   : 128.2.13.145
       port : 12998
 
     - name : daphnie
-      ip   : 192.168.1.87
+      ip   : 128.2.13.145
       port : 1987
 
 sendRules :
     - action : drop # Ack message number 4 from bob to alice will not be sent
       src    : bob
-      dest   : alice
+      dest   : daphnie
       kind   : Ack
     
     - action : delay # Every Lookup message in the system will be delayed
       kind   : Lookup
+      
+    - action : duplicate
+      kind   : Ack
+      src    : bob
+      dest   : charlie
       
 receiveRules :
     - action : drop # Ack message number 4 from bob to alice will not be sent
@@ -34,3 +39,10 @@ receiveRules :
     
     - action : delay # Every Lookup message in the system will be delayed
       kind   : Lookup
+      dest   : daphnie
+      
+    - action : drop
+      kind   : Ack
+      src    : bob
+      dest   : charlie
+      duplicate: yes
