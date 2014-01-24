@@ -17,8 +17,11 @@ public class Configuration {
 	public List<Node> configuration;
 	public List<Rule> sendRules;
 	public List<Rule> receiveRules;
+	
+	private long lastModifiedTime;
 
 	public Configuration() {
+		this.lastModifiedTime = 0;
 	}
 
 	/**
@@ -67,6 +70,16 @@ public class Configuration {
 	 *            configuration file name
 	 */
 	public void updateSendRules(String fileName) {
+		File file = null;
+		try {
+			file = new File(fileName);
+			if (lastModifiedTime != 0 && lastModifiedTime == file.lastModified())
+				return;
+		} catch (Exception ex) {
+			Log.error("updateSendRules", "The file does not exist", ex);
+			return;
+		}
+		lastModifiedTime = file.lastModified();
 		Configuration newConfig = Configuration.loadConfigFile(fileName);
 		if (newConfig != null) {
 			this.sendRules = newConfig.getSendRules();
@@ -80,6 +93,17 @@ public class Configuration {
 	 *            configuration file name
 	 */
 	public void updateReceiveRules(String fileName) {
+		File file = null;
+		try {
+			file = new File(fileName);
+			if (lastModifiedTime != 0 && lastModifiedTime == file.lastModified()) {
+				return;
+			}
+		} catch (Exception ex) {
+			Log.error("updateReceiveRules", "The file does not exist", ex);
+			return;
+		}
+		lastModifiedTime = file.lastModified();
 		Configuration newConfig = Configuration.loadConfigFile(fileName);
 		if (newConfig != null) {
 			this.receiveRules = newConfig.getReceiveRules();
